@@ -1,2 +1,0 @@
-# CheesePie
-Juego de ajedrez
