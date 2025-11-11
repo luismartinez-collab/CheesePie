@@ -62,12 +62,62 @@ pieces = [
     {"row": 6, "col": col, "color": "white", "type": "pawn", "startingPos": True} for col in range(8)
 ]
 
+current_turn_white = True
 
-""" IMPORTANTE TERMINAR
-def check_piece_in_the_way(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to_col, pre_move_row, pre_move_col, piece_starting_pos):
+selected_piece = None
+selected_piece_type = None
+selected_piece_color = None
+selected_piece_starting_pos = None
+
+selected_piece_pre_col = None
+selected_piece_pre_row = None
+
+
+def get_piece_at(row, col):
+    for idx, piece in enumerate(pieces):
+        if piece["row"] == row and piece["col"] == col:
+            return idx, piece['type'], piece['color'], piece['startingPos']
+    return None
+
+def check_piece_in_the_way(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to_col, pre_move_row, pre_move_col):
+
+    ##Finished pawn, 5 more
 
     if piece_type == "pawn":
 
+        if piece_color == "white":
+
+            for i in range(pre_move_row,trying_to_move_to_row-1,-1):
+
+                if get_piece_at(i, pre_move_col) != None:
+
+                    id_, piece, __, ___ = get_piece_at(i, pre_move_col)
+
+                    if piece and id_ != selected_piece:
+
+                        print(piece + " is in the way")
+
+                        return False
+
+                
+
+        else:
+            for i in range(pre_move_row,trying_to_move_to_row+1,1):
+
+                if get_piece_at(i, pre_move_col) != None:
+
+                    id_, piece, __, ___ = get_piece_at(i, pre_move_col)
+
+                    if piece and id_ != selected_piece:
+
+                        print(piece + " is in the way")
+
+                        return False
+                
+               
+
+                    
+                
         return True
 
     elif piece_type == "bishop":
@@ -89,7 +139,6 @@ def check_piece_in_the_way(piece_type, piece_color ,trying_to_move_to_row, tryin
 
     return True
 
-"""
 
 def check_move(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to_col, pre_move_row, pre_move_col, piece_starting_pos, whose_turn):
 
@@ -102,7 +151,25 @@ def check_move(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to
     if piece_type == "pawn":
         
         if piece_color == "white":
-            
+
+            if (pre_move_row - 1 == trying_to_move_to_row and (pre_move_col + 1 or pre_move_col -1 == trying_to_move_to_col)):
+                
+                if get_piece_at(trying_to_move_to_row, trying_to_move_to_col):
+
+                    id_, piece, color, __ = get_piece_at(trying_to_move_to_row, trying_to_move_to_col)
+
+                    if color == "black" and pre_move_col != pieces[id_]["col"]:
+
+                        pieces[id_]["row"] = -1
+
+                        return True
+                    else:
+                        return False
+                        
+            valid = check_piece_in_the_way(piece_type, piece_color, trying_to_move_to_row, trying_to_move_to_col, pre_move_row, pre_move_col)
+    
+            if not valid:
+                return False
 
             if trying_to_move_to_col != pre_move_col:
                 return False
@@ -116,11 +183,34 @@ def check_move(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to
                 else:
                     if trying_to_move_to_row < pre_move_row - 2:
                         return False
+                    
+            if trying_to_move_to_row == 0:
+                pieces[selected_piece]["type"] == "queen"
+                print("white queen")
+            else:
+                print("white pawn")
             
-            print("white pawn")
 
             return True
+
         else:
+
+            if (pre_move_row + 1 == trying_to_move_to_row and (pre_move_col + 1 or pre_move_col -1 == trying_to_move_to_col)):
+                
+                if get_piece_at(trying_to_move_to_row, trying_to_move_to_col):
+
+                    id_, piece, color, __ = get_piece_at(trying_to_move_to_row, trying_to_move_to_col)
+
+                    if color == "white" and pre_move_col != pieces[id_]["col"]:
+                        pieces[id_]["row"] = -1
+
+                        return True
+
+                        
+            valid = check_piece_in_the_way(piece_type, piece_color, trying_to_move_to_row, trying_to_move_to_col, pre_move_row, pre_move_col)
+    
+            if not valid:
+                return False
 
             if trying_to_move_to_col != pre_move_col:
                 return False
@@ -134,8 +224,12 @@ def check_move(piece_type, piece_color ,trying_to_move_to_row, trying_to_move_to
                 else:
                     if trying_to_move_to_row > pre_move_row + 2:
                         return False
-            
-            print("black pawn")
+                    
+            if trying_to_move_to_row == 7:
+                pieces[selected_piece]["type"] == "queen"
+                print("black queen")
+            else:
+                print("black pawn")
 
             return True
 
@@ -262,22 +356,6 @@ def draw_pieces(screen, pieces, images, selected=None):
         image_key = f"{pieces[selected]['color']}-{pieces[selected]['type']}"
         image = images[image_key]
         screen.blit(image, (mx - SQUARE_SIZE // 2, my - SQUARE_SIZE // 2))
-
-def get_piece_at(row, col):
-    for idx, piece in enumerate(pieces):
-        if piece["row"] == row and piece["col"] == col:
-            return idx, piece['type'], piece['color'], piece['startingPos']
-    return None
-
-current_turn_white = True
-
-selected_piece = None
-selected_piece_type = None
-selected_piece_color = None
-selected_piece_starting_pos = None
-
-selected_piece_pre_col = None
-selected_piece_pre_row = None
 
 running = True
 while running:
